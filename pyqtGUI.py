@@ -66,30 +66,30 @@ class Example(QWidget):
         # Multi-engines setting
         self.modifyPedestalsCheckbox = QCheckBox("Change pedestals values")        
 
-        self.pedestalsLabel = QLabel('Set engines from {} to {}:'.format(self.pedMin, self.pedMax))
-        self.pedestalsEdit = QLineEdit("260")
-        self.pedestalsEdit.setFixedWidth(50)
-        self.pedestalsEdit.setMaxLength(3)
-        self.pedestalsButton = QPushButton('Set', self)
-        self.pedestalsButton.clicked.connect(self.setPedestals)
+        self.powerLabel = QLabel('Set engines from {} to {}:'.format(self.pedMin, self.pedMax))
+        self.powerEdit = QLineEdit("260")
+        self.powerEdit.setFixedWidth(50)
+        self.powerEdit.setMaxLength(3)
+        self.powerButton = QPushButton('Set', self)
+        self.powerButton.clicked.connect(self.setPowers)
 
-        self.pedestalsUpButton = QPushButton('+1', self)
-        self.pedestalsDownButton = QPushButton('-1', self)
-        self.pedestalsUpButton.clicked.connect(self.setPedestalsUpDown)
-        self.pedestalsDownButton.clicked.connect(self.setPedestalsUpDown)
-        self.pedestals5UpButton = QPushButton('+5', self)
-        self.pedestals5DownButton = QPushButton('-5', self)
-        self.pedestals5UpButton.clicked.connect(self.setPedestalsUpDown)
-        self.pedestals5DownButton.clicked.connect(self.setPedestalsUpDown)        
+        self.powerUpButton = QPushButton('+1', self)
+        self.powerDownButton = QPushButton('-1', self)
+        self.powerUpButton.clicked.connect(self.setPowersUpDown)
+        self.powerDownButton.clicked.connect(self.setPowersUpDown)
+        self.power5UpButton = QPushButton('+5', self)
+        self.power5DownButton = QPushButton('-5', self)
+        self.power5UpButton.clicked.connect(self.setPowersUpDown)
+        self.power5DownButton.clicked.connect(self.setPowersUpDown)        
 
-        self.pedestalsOneVBox = QVBoxLayout()
-        self.pedestalsOneVBox.addStretch(1)
+        self.powerOneVBox = QVBoxLayout()
+        self.powerOneVBox.addStretch(1)
 
-        self.pedestalsFiveVBox = QVBoxLayout()
-        self.pedestalsFiveVBox.addStretch(1)
+        self.powerFiveVBox = QVBoxLayout()
+        self.powerFiveVBox.addStretch(1)
 
-        self.pedestalsHBox = QHBoxLayout()
-        self.pedestalsHBox.addStretch(1)
+        self.powerHBox = QHBoxLayout()
+        self.powerHBox.addStretch(1)
 
         # Other commands
         self.writeDataLabel = QLabel('Write data:')
@@ -164,18 +164,18 @@ class Example(QWidget):
         self.connectHBox.addWidget(self.connectButton)
         self.generalVBox.addLayout(self.connectHBox)
         
-        self.pedestalsHBox.addWidget(self.pedestalsLabel)
-        self.pedestalsHBox.addWidget(self.pedestalsEdit)
-        self.pedestalsHBox.addWidget(self.pedestalsButton)
-        self.pedestalsOneVBox.addWidget(self.pedestalsUpButton)
-        self.pedestalsOneVBox.addWidget(self.pedestalsDownButton)
-        self.pedestalsFiveVBox.addWidget(self.pedestals5UpButton)
-        self.pedestalsFiveVBox.addWidget(self.pedestals5DownButton)
+        self.powerHBox.addWidget(self.powerLabel)
+        self.powerHBox.addWidget(self.powerEdit)
+        self.powerHBox.addWidget(self.powerButton)
+        self.powerOneVBox.addWidget(self.powerUpButton)
+        self.powerOneVBox.addWidget(self.powerDownButton)
+        self.powerFiveVBox.addWidget(self.power5UpButton)
+        self.powerFiveVBox.addWidget(self.power5DownButton)
 
-        self.pedestalsHBox.addLayout(self.pedestalsOneVBox)
-        self.pedestalsHBox.addLayout(self.pedestalsFiveVBox) 
+        self.powerHBox.addLayout(self.powerOneVBox)
+        self.powerHBox.addLayout(self.powerFiveVBox) 
         self.generalVBox.addWidget(self.modifyPedestalsCheckbox)
-        self.generalVBox.addLayout(self.pedestalsHBox)
+        self.generalVBox.addLayout(self.powerHBox)
 
         self.sysexHBox.addWidget(self.writeDataLabel)
         self.sysexHBox.addWidget(self.writeDataButton)
@@ -231,15 +231,15 @@ class Example(QWidget):
         self.board.set_pin_mode(7,self.board.PWM,self.board.DIGITAL)
 
     @tryExceptDecorator(0)
-    def setPedestals(self):
+    def setPowers(self):
         tempPedestal = 0
         try:
-            tempPedestal = int(self.pedestalsEdit.text())
+            tempPedestal = int(self.powerEdit.text())
         except:
             print("Bad conversion to int")
             return
         if tempPedestal > 259 and tempPedestal < 500:
-            print("Setting all pedestals to: {}".format(str(tempPedestal)))
+            print("Setting all power to: {}".format(str(tempPedestal)))
             for key in self.motorVector.keys():
                 self.motorVector[key] = tempPedestal
             self.updateTexts()
@@ -248,7 +248,7 @@ class Example(QWidget):
             else:
                 self.board.set_value_toAll(tempPedestal)
         else:
-            print("Pedestals out of range")
+            print("Powers out of range")
 
     @tryExceptDecorator(0)
     def writeData(self):
@@ -303,10 +303,10 @@ class Example(QWidget):
                         self.board.set_value_toSingle(int(key[-1:]),self.motorVector[key])    
                     
     @tryExceptDecorator(0)
-    def setPedestalsUpDown(self):
+    def setPowersUpDown(self):
         sender = self.sender()
         senderTextInt = int(sender.text())
-        print("All pedestals",sender.text())
+        print("All power",sender.text())
         for key in self.motorVector.keys():
             if self.motorVector[key] + (senderTextInt) > self.pedMax or self.motorVector[key] + (senderTextInt) < self.pedMin:
                 print("Out of range")
