@@ -244,9 +244,9 @@ class Example(QWidget):
                 self.motorVector[key] = tempPedestal
             self.updateTexts()
             if(self.modifyPedestalsCheckbox.isChecked()):
-                self.board.send_single_pedestal(tempPedestal)
+                self.board.set_pedestal_toAll(tempPedestal)
             else:
-                self.board.send_single_value(tempPedestal)
+                self.board.set_value_toAll(tempPedestal)
         else:
             print("Pedestals out of range")
 
@@ -282,9 +282,9 @@ class Example(QWidget):
                     self.motorVector[key] += 1
                     self.updateTexts()
                     if(self.modifyPedestalsCheckbox.isChecked()):
-                        self.board.send_pedestal_motor(int(key[-1:]),self.motorVector[key])
+                        self.board.set_pedestal_toSingle(int(key[-1:]),self.motorVector[key])
                     else:
-                        self.board.send_single_motor(int(key[-1:]),self.motorVector[key])
+                        self.board.set_value_toSingle(int(key[-1:]),self.motorVector[key])
 
     @tryExceptDecorator(0)
     def minusOne(self):
@@ -298,9 +298,9 @@ class Example(QWidget):
                     self.motorVector[key] -= 1
                     self.updateTexts()
                     if(self.modifyPedestalsCheckbox.isChecked()):
-                        self.board.send_pedestal_motor(int(key[-1:]),self.motorVector[key])
+                        self.board.set_pedestal_toSingle(int(key[-1:]),self.motorVector[key])
                     else:
-                        self.board.send_single_motor(int(key[-1:]),self.motorVector[key])    
+                        self.board.set_value_toSingle(int(key[-1:]),self.motorVector[key])    
                     
     @tryExceptDecorator(0)
     def setPedestalsUpDown(self):
@@ -313,9 +313,9 @@ class Example(QWidget):
             else:
                 self.motorVector[key] = self.motorVector[key] + (senderTextInt)
                 if(self.modifyPedestalsCheckbox.isChecked()):
-                    self.board.send_pedestal_motor(int(key[-1:]),self.motorVector[key])
+                    self.board.set_pedestal_toSingle(int(key[-1:]),self.motorVector[key])
                 else:
-                    self.board.send_single_motor(int(key[-1:]),self.motorVector[key])
+                    self.board.set_value_toSingle(int(key[-1:]),self.motorVector[key])
         self.updateTexts()
 
     @tryExceptDecorator(0)
