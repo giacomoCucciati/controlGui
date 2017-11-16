@@ -19,6 +19,8 @@ from PyQt5.QtCore import QCoreApplication
 from MyPyMata.pymata import PyMata
 from functools import wraps
 import matplotlib.pyplot as plt
+import threading
+import time
 
 def tryExceptDecorator(moreThenSelf=0):
     def innerTryExceptDecorator(f):
@@ -43,6 +45,8 @@ class Example(QWidget):
         self.pedMin = 260
         self.pedMax = 499
         self.board = ""
+        self.theConnectionThread = threading.Thread(target=self.thread_function, args=())
+        self.runningFlag = True
         self.initUI()
 
     def initUI(self):
@@ -55,7 +59,7 @@ class Example(QWidget):
         self.portLabel = QLabel('Port:')
         self.portEdit = QLineEdit("")
         self.portCombo = QComboBox()
-        self.portCombo.addItems(["/dev/tty.usbserial-A9CZ7XPL", "/dev/tty.usbmodem1421",])
+        self.portCombo.addItems(["/dev/tty.usbserial-A9CZ7XPL", "/dev/tty.usbmodem1421","/dev/tty.usbmodem1411"])
         self.portEdit.setFixedWidth(200)
         self.connectButton = QPushButton('Connect', self)
         self.connectButton.clicked.connect(self.connectToArduino)
@@ -108,8 +112,15 @@ class Example(QWidget):
         self.landingButton = QPushButton('0x19', self)
         self.landingButton.clicked.connect(self.landing)
 
+        self.baseAnglesLabel = QLabel('Calculate base angles:')
+        self.baseAnglesButton = QPushButton('0x1c', self)
+        self.baseAnglesButton.clicked.connect(self.calculateBaseAngles)
+
         self.sysexHBox = QHBoxLayout()
         self.sysexHBox.addStretch(1)
+
+        self.sysexHBox2 = QHBoxLayout()
+        self.sysexHBox2.addStretch(1)
 
         # Single-engine setting
         self.motorValue2 = QLineEdit('0')
@@ -185,7 +196,12 @@ class Example(QWidget):
         self.sysexHBox.addWidget(self.startCalibrationButton)
         self.sysexHBox.addWidget(self.landingLabel)
         self.sysexHBox.addWidget(self.landingButton)
+
+        self.sysexHBox2.addWidget(self.baseAnglesLabel)
+        self.sysexHBox2.addWidget(self.baseAnglesButton)
+
         self.generalVBox.addLayout(self.sysexHBox)
+        self.generalVBox.addLayout(self.sysexHBox2)
 
         self.grid.addWidget(self.plusMotor2, 1, 0)
         self.grid.addWidget(self.plusMotor3, 1, 1)
@@ -225,10 +241,11 @@ class Example(QWidget):
         print("Connecting to: {}".format(self.port))
 
         self.board = PyMata(self.port)
-        self.board.set_pin_mode(2,self.board.PWM,self.board.DIGITAL)
-        self.board.set_pin_mode(3,self.board.PWM,self.board.DIGITAL)
-        self.board.set_pin_mode(6,self.board.PWM,self.board.DIGITAL)
-        self.board.set_pin_mode(7,self.board.PWM,self.board.DIGITAL)
+        #self.board.set_pin_mode(2,self.board.PWM,self.board.DIGITAL)
+        #self.board.set_pin_mode(3,self.board.PWM,self.board.DIGITAL)
+        #self.board.set_pin_mode(6,self.board.PWM,self.board.DIGITAL)
+        #self.board.set_pin_mode(7,self.board.PWM,self.board.DIGITAL)
+        self.activateThread()
 
     @tryExceptDecorator(0)
     def setPowers(self):
@@ -269,6 +286,11 @@ class Example(QWidget):
     def landing(self):
         print("Send landing sysex")
         self.board._command_handler.send_sysex(0x19)
+
+    @tryExceptDecorator(0)
+    def calculateBaseAngles(self):
+        print("Send calculateBaseAngles sysex")
+        self.board._command_handler.send_sysex(0x1c)
 
     @tryExceptDecorator(0)
     def addOne(self):
@@ -343,6 +365,14 @@ class Example(QWidget):
         else:
             print("No data available!!!")
 
+    def activateThread(self):
+        self.theConnectionThread.start()
+
+    def thread_function(self):
+        while self.runningFlag:
+            print("Ping to Arduino...");
+            self.board.sendPing()
+            time.sleep(3);   
         
         
     def closeEvent(self, event):
@@ -351,6 +381,7 @@ class Example(QWidget):
             QMessageBox.No, QMessageBox.No)
         
         if reply == QMessageBox.Yes:
+            self.runningFlag = False
             event.accept()
         else:
             event.ignore()
