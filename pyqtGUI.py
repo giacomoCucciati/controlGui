@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-ZetCode PyQt5 tutorial 
+ZetCode PyQt5 tutorial
 
 In this example, we create a simple
 window in PyQt5.
 
 author: Jan Bodnar
-website: zetcode.com 
+website: zetcode.com
 last edited: January 2015
 """
 
@@ -37,7 +37,7 @@ def tryExceptDecorator(moreThenSelf=0):
         return inner
     return innerTryExceptDecorator
 class Example(QWidget):
-        
+
     def __init__(self):
         super().__init__()
         self.motorVector = {'motor2':0,'motor3':0,'motor6':0,'motor7':0}
@@ -50,7 +50,7 @@ class Example(QWidget):
         self.initUI()
 
     def initUI(self):
-       
+
         self.generalVBox = QVBoxLayout()
         self.generalVBox.addStretch(1)
         self.grid = QGridLayout()
@@ -68,7 +68,7 @@ class Example(QWidget):
         self.connectHBox.addStretch(1)
 
         # Multi-engines setting
-        self.modifyPedestalsCheckbox = QCheckBox("Change pedestals values")        
+        self.modifyPedestalsCheckbox = QCheckBox("Change pedestals values")
 
         self.powerLabel = QLabel('Set engines from {} to {}:'.format(self.pedMin, self.pedMax))
         self.powerEdit = QLineEdit("260")
@@ -84,7 +84,14 @@ class Example(QWidget):
         self.power5UpButton = QPushButton('+5', self)
         self.power5DownButton = QPushButton('-5', self)
         self.power5UpButton.clicked.connect(self.setPowersUpDown)
-        self.power5DownButton.clicked.connect(self.setPowersUpDown)        
+        self.power5DownButton.clicked.connect(self.setPowersUpDown)
+
+        self.kvaluesLabel = QLabel('Set correction parameter based on speed:')
+        self.kvaluesEdit = QLineEdit("1.0")
+        self.kvaluesEdit.setFixedWidth(50)
+        self.kvaluesEdit.setMaxLength(3)
+        self.kvaluesButton = QPushButton('Set', self)
+        self.kvaluesButton.clicked.connect(self.setKvalues)
 
         self.powerOneVBox = QVBoxLayout()
         self.powerOneVBox.addStretch(1)
@@ -94,6 +101,9 @@ class Example(QWidget):
 
         self.powerHBox = QHBoxLayout()
         self.powerHBox.addStretch(1)
+
+        self.kvaluesHBox = QHBoxLayout()
+        self.kvaluesHBox.addStretch(1)
 
         # Other commands
         self.writeDataLabel = QLabel('Write data:')
@@ -132,12 +142,12 @@ class Example(QWidget):
         self.plusMotor3 = QPushButton('+1 motor3', self)
         self.plusMotor6 = QPushButton('+1 motor6', self)
         self.plusMotor7 = QPushButton('+1 motor7', self)
-        
+
         self.minusMotor2 = QPushButton('-1 motor2', self)
         self.minusMotor3 = QPushButton('-1 motor3', self)
         self.minusMotor6 = QPushButton('-1 motor6', self)
         self.minusMotor7 = QPushButton('-1 motor7', self)
-       
+
         self.plusMotor2.clicked.connect(self.addOne)
         self.plusMotor3.clicked.connect(self.addOne)
         self.plusMotor6.clicked.connect(self.addOne)
@@ -157,7 +167,7 @@ class Example(QWidget):
         self.plotsLine = QLineEdit('2 4 8')
         self.plotsButton = QPushButton('Show', self)
         self.plotsButton.clicked.connect(self.showPlots)
-       
+
         self.exampleHBox = QHBoxLayout()
         self.exampleHBox.addStretch(1)
         self.plotsHBox = QHBoxLayout()
@@ -167,14 +177,14 @@ class Example(QWidget):
         #qbtn.setToolTip('Click to close the application')
         #qbtn.clicked.connect(QCoreApplication.instance().quit)
         #qbtn.resize(qbtn.sizeHint())
-        #qbtn.move(50, 50) 
+        #qbtn.move(50, 50)
 
         self.connectHBox.addWidget(self.portLabel)
         self.connectHBox.addWidget(self.portEdit)
         self.connectHBox.addWidget(self.portCombo)
         self.connectHBox.addWidget(self.connectButton)
         self.generalVBox.addLayout(self.connectHBox)
-        
+
         self.powerHBox.addWidget(self.powerLabel)
         self.powerHBox.addWidget(self.powerEdit)
         self.powerHBox.addWidget(self.powerButton)
@@ -184,9 +194,17 @@ class Example(QWidget):
         self.powerFiveVBox.addWidget(self.power5DownButton)
 
         self.powerHBox.addLayout(self.powerOneVBox)
-        self.powerHBox.addLayout(self.powerFiveVBox) 
+        self.powerHBox.addLayout(self.powerFiveVBox)
+
+        self.kvaluesHBox.addWidget(self.kvaluesLabel)
+        self.kvaluesHBox.addWidget(self.kvaluesEdit)
+        self.kvaluesHBox.addWidget(self.kvaluesButton)
+
+
+
         self.generalVBox.addWidget(self.modifyPedestalsCheckbox)
         self.generalVBox.addLayout(self.powerHBox)
+        self.generalVBox.addLayout(self.kvaluesHBox)
 
         self.sysexHBox.addWidget(self.writeDataLabel)
         self.sysexHBox.addWidget(self.writeDataButton)
@@ -268,6 +286,16 @@ class Example(QWidget):
             print("Powers out of range")
 
     @tryExceptDecorator(0)
+    def setKvalues(self):
+        try:
+            tempKvalue = float(self.kvaluesEdit.text())
+        except:
+            print("Bad conversion to float")
+            return
+        print("Setting kvalue to: {0}".format(tempKvalue))
+        self.board.et_dump_parameter(tempKvalue)
+
+    @tryExceptDecorator(0)
     def writeData(self):
         print("Send write data sysex")
         self.board._command_handler.send_sysex(0x13)
@@ -322,8 +350,8 @@ class Example(QWidget):
                     if(self.modifyPedestalsCheckbox.isChecked()):
                         self.board.set_pedestal_toSingle(int(key[-1:]),self.motorVector[key])
                     else:
-                        self.board.set_value_toSingle(int(key[-1:]),self.motorVector[key])    
-                    
+                        self.board.set_value_toSingle(int(key[-1:]),self.motorVector[key])
+
     @tryExceptDecorator(0)
     def setPowersUpDown(self):
         sender = self.sender()
@@ -355,7 +383,7 @@ class Example(QWidget):
         for element in plotsString:
             plt.plot(data[int(element)])
         plt.show()
-        
+
     @tryExceptDecorator(0)
     def extractExample(self):
         if(len(self.board.graph_data) > 0 ):
@@ -372,14 +400,14 @@ class Example(QWidget):
         while self.runningFlag:
             print("Ping to Arduino...");
             self.board.sendPing()
-            time.sleep(3);   
-        
-        
+            time.sleep(3);
+
+
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
-            "Are you sure to quit?", QMessageBox.Yes | 
+            "Are you sure to quit?", QMessageBox.Yes |
             QMessageBox.No, QMessageBox.No)
-        
+
         if reply == QMessageBox.Yes:
             self.runningFlag = False
             event.accept()
@@ -387,7 +415,7 @@ class Example(QWidget):
             event.ignore()
 
 if __name__ == '__main__':
-    
+
     app = QApplication(sys.argv)
     ex = Example()
     sys.exit(app.exec_())
