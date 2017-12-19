@@ -263,7 +263,9 @@ class Example(QWidget):
         #self.board.set_pin_mode(3,self.board.PWM,self.board.DIGITAL)
         #self.board.set_pin_mode(6,self.board.PWM,self.board.DIGITAL)
         #self.board.set_pin_mode(7,self.board.PWM,self.board.DIGITAL)
-        self.activateThread()
+        # Check to start the thread only if Arduino has been recognized
+        if not self.board._command_handler.is_stopped():
+            self.activateThread()
 
     @tryExceptDecorator(0)
     def setPowers(self):
