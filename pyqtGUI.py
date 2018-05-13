@@ -87,7 +87,7 @@ class Example(QWidget):
         self.power5DownButton.clicked.connect(self.setPowersUpDown)
 
         self.kvaluesLabel = QLabel('Set correction parameter based on speed:')
-        self.kvaluesEdit = QLineEdit("1.0")
+        self.kvaluesEdit = QLineEdit("2.0")
         self.kvaluesEdit.setFixedWidth(50)
         self.kvaluesEdit.setMaxLength(3)
         self.kvaluesButton = QPushButton('Set', self)
@@ -290,12 +290,13 @@ class Example(QWidget):
     @tryExceptDecorator(0)
     def setKvalues(self):
         try:
-            tempKvalue = float(self.kvaluesEdit.text())
+            tempKvalue = float(self.kvaluesEdit.text())*10
+            inttempKvalue = int(tempKvalue)
         except:
             print("Bad conversion to float")
             return
-        print("Setting kvalue to: {0}".format(tempKvalue))
-        self.board.et_dump_parameter(tempKvalue)
+        print("Setting kvalue to: {0}".format(inttempKvalue))
+        self.board.set_dump_parameter(inttempKvalue)
 
     @tryExceptDecorator(0)
     def writeData(self):
